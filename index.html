@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Indicator Calculator</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Financial Indicator Calculator</h1>
+    <p id="errorMessage" style="color: red; display: none;">Failed to load RSI data. Please try again later.</p>
+    <canvas id="rsiChart" width="400" height="200"></canvas>
+
+    <script>
+        async function fetchRSIData() {
+            try {
+                const response = await fetch('http://127.0.0.1:5000/api/rsi');
+                if (!response.ok) throw new Error('Network response was not ok');
+                const rsiData = await response.json();
+                displayChart(rsiData);
+            } catch (error) {
+                console.error("Error fetching RSI data:", error);
+                document.getElementById("errorMessage").style.display = "block";
+            }
+        }
+
+        function displayChart(data) {
+            const ctx = document.getElementById('rsiChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map((_, index) => index + 1),
+                    datasets: [{
+                        label: 'RSI',
+                        data: data,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1,
+                        fill: false
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time Period'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'RSI Value'
+                            },
+                            min: 0,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        fetchRSIData();
+    </script>
+</body>
+</html>
